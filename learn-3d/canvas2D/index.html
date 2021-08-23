@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>canvas 2d</title>
+	<link rel="stylesheet" href="./public.css">
+</head>
+<body>
+	<div id="app">
+		
+	</div>
+
+	<script type="text/javascript">
+		var app = document.getElementById('app');
+		var canvas = newCanvas({
+			id: 'canvas',
+			width: '500',
+			height: '400'
+		});
+
+		var c = canvas.getContext('2d');
+		c.fillStyle = 'rgba(255,85,0,1)';
+
+		c.fillRect(40,40,100,100);
+		c.clearRect(60,60,60,60);
+		c.strokeRect(70,70,40,40);
+
+		app.appendChild(canvas);
+
+		var triangle = canvas.getContext('2d');
+
+		triangle.beginPath();
+		triangle.moveTo(150, 150);
+		triangle.lineTo(170, 170);
+		triangle.lineTo(150, 190);
+		// triangle.fill();		//填充三角
+		//描边
+		triangle.closePath();
+		triangle.stroke();
+		
+
+		var smile = canvas.getContext('2d');
+		smile.beginPath();
+		smile.arc(200,100,50,0,Math.PI*2,true);	//绘制
+		smile.moveTo(235,100);
+		smile.arc(200,100,35,0,Math.PI,false);	//嘴	(顺时针)
+		smile.moveTo(190,90);
+		smile.arc(185,90,5,0,Math.PI*2,true);	//左眼
+		smile.moveTo(220,90);
+		smile.arc(215,90,5,0,Math.PI*2,true);	//右眼
+		smile.stroke();
+
+
+		var arcto = canvas.getContext('2d');
+		arcto.beginPath();
+		arcto.moveTo(300,300);
+		arcto.arcTo(300,310,400,400,10);
+		arcto.stroke();
+
+
+		function newCanvas(options){
+			let node = document.createElement('canvas');
+			node.id = options.id;
+			node.width = options.width;
+			node.height = options.height;
+			return node;
+		}
+	</script>
+</body>
+</html>

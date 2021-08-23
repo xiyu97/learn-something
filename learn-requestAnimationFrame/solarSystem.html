@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Solar System</title>
+	<style>
+		body{
+			margin: 0;
+			padding: 0;
+			text-align: center;
+			color: #fff;
+			font-weight: 600;
+		}
+		#app div{
+			border-radius: 50%;
+			position: absolute;
+		}
+		.sun{
+			left: calc(960px - 200px / 2);
+			top: calc(468px - 200px / 2);
+			width: 200px;
+			line-height: 200px;
+			height: 200px;
+			background-color: gold;
+			font-size: 20px;
+		}
+
+
+		.Mercury{
+			width: 30px;
+			line-height: 30px;
+			height: 30px;
+			background-color: #a26c2c;
+			font-size: 12px;
+		}
+		.Venus{
+			width: 50px;
+			line-height: 50px;
+			height: 50px;
+			background-color: #cdb08c;
+			font-size: 13px;
+		}
+		.Earth{
+			width: 50px;
+			line-height: 50px;
+			height: 50px;
+			background-color: #1974dc;
+			font-size: 14px;
+		}
+		.Mars{
+			width: 40px;
+			line-height: 40px;
+			height: 40px;
+			background-color: #a47c63;
+			font-size: 14px;
+		}
+		.Jupiter{
+			width: 90px;
+			line-height: 90px;
+			height: 90px;
+			background-image: linear-gradient(to bottom, #9b856a, #fffbdd, #bf8f6c);
+			font-size: 14px;
+			color: #333
+		}
+		.Saturn{
+			width: 80px;
+			line-height: 80px;
+			height: 80px;
+			background-color: #be9053;
+			/*background-image: linear-gradient(to bottom, #9b856a, #e6bd71, #bf8f6c);*/
+			font-size: 14px;
+		}
+		.saturn-circle{
+			width: 110px;
+			height: 110px;
+			border-radius: 50%;
+		    border: 6px solid #be9053;
+		    top: 50%;
+		    left: 50%;
+		    transform: translate(-50%, -50%) rotate3d(6, 1, 1, 70deg);
+		}
+		.Uranus{
+			width: 80px;
+			line-height: 80px;
+			height: 80px;
+			background-color: #71ddff;
+			font-size: 14px;
+		}
+		.Neptune{
+			width: 30px;
+			line-height: 30px;
+			height: 30px;
+			background-color: #88a5eb;
+			font-size: 12px;
+		}
+	</style>
+</head>
+<body>
+	
+	<div id="app">
+		<div class="sun">太阳</div>
+		<div class="Mercury" :style="{'transform': mercury}">水星</div>
+		<div class="Venus" :style="{'transform': venus}">金星</div>
+		<div class="Earth" :style="{'transform': earth}">地球</div>
+		<div class="Mars" :style="{'transform': mars}">火星</div>
+		<div class="Jupiter" :style="{'transform': jupiter}">木星</div>
+		<div class="Saturn" :style="{'transform': saturn}">土星<div class="saturn-circle"></div></div>
+		<div class="Uranus" :style="{'transform': uranus}">天王</div>
+		<div class="Neptune" :style="{'transform': neptune}">海王</div>
+	</div>
+
+	<script type="text/javascript" src="./vue.min.js"></script>
+	<script type="text/javascript">
+		new Vue({
+			el: '#app',
+			data: function(){
+				return {
+					xp: 0,
+					yp: 0,
+					angle: 0,
+					mercury: '',
+					venus: '',
+					earth: '',
+					mars: '',
+					jupiter: '',
+					saturn: '',
+					uranus: '',
+					neptune: ''
+				}
+			},
+			mounted:function(){
+				this.animate();
+			},
+			methods: {
+				animate: function(){
+					// 角度加1
+				    this.angle += 1;
+				    let angle = this.angle;
+				    let xNum = angle * Math.PI;
+				    let mercuryPos = this.getPosition(15, 100, 120),
+				    	venusPos = this.getPosition(25, 136, 175, true),
+				    	earthPos = this.getPosition(25, 161, 230),
+				    	marsPos = this.getPosition(20, 200, 280),
+				    	jupiterPos = this.getPosition(45, 370, 370),
+				    	saturnPos = this.getPosition(40, 500, 455),
+				    	uranusPos = this.getPosition(40, 714, 540),
+				    	neptunePos = this.getPosition(15, 909, 600);
+				    this.mercury = `translate(${mercuryPos.x}px, ${mercuryPos.y}px)`;
+				    this.venus = `translate(${venusPos.x}px, ${venusPos.y}px)`;
+				    this.earth = `translate(${earthPos.x}px, ${earthPos.y}px)`;
+				    this.mars = `translate(${marsPos.x}px, ${marsPos.y}px)`;
+				    this.jupiter = `translate(${jupiterPos.x}px, ${jupiterPos.y}px)`;
+				    this.saturn = `translate(${saturnPos.x}px, ${saturnPos.y}px)`;
+				    this.uranus = `translate(${uranusPos.x}px, ${uranusPos.y}px)`;
+				    this.neptune = `translate(${neptunePos.x}px, ${neptunePos.y}px)`;
+				    window.requestAnimationFrame(this.animate);
+				},
+				getPosition: function(halfOfRadius, speed, roundRadius, reverse = false){
+					let ang = this.angle;
+					if(reverse){
+						return {
+							x: 960 - halfOfRadius + Math.sin(ang * Math.PI / speed) * roundRadius,
+							y: 468 - halfOfRadius + Math.cos(ang * Math.PI / speed) * roundRadius
+						}
+					}
+					return {
+						x: 960 - halfOfRadius + Math.cos(ang * Math.PI / speed) * roundRadius,
+						y: 468 - halfOfRadius + Math.sin(ang * Math.PI / speed) * roundRadius
+					};
+				}
+			}
+		})
+	</script>
+</body>
+</html>

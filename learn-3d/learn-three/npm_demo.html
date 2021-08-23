@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        body{
+            margin: 0;
+        }
+        canvas{
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+
+    <script src="./three.js"></script>
+    <script>
+
+        // 添加场景
+        var scene = new THREE.Scene();
+
+        // 使用 透视摄像机PerspectiveCamera
+        var camera = new THREE.PerspectiveCamera(
+            75, window.innerWidth / window.innerHeight,
+            0.1, 1000
+        );
+
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+
+        // 创建立方体1
+        var geometry1 = new THREE.BoxGeometry(1,1,1);
+        var material1 = new THREE.MeshBasicMaterial({
+            color: 0x00ff00
+        });
+        var cube1 = new THREE.Mesh(geometry1, material1);
+        cube1.position.x = -2;
+        scene.add(cube1);
+
+
+        // 创建立方体2
+        var geometry2 = new THREE.BoxGeometry(0.8,0.8,0.8);
+        var material2 = new THREE.MeshBasicMaterial({
+            color: 0xff4400
+        });
+        var cube2 = new THREE.Mesh(geometry2, material2);
+        cube2.position.x = 2;
+        scene.add(cube2);
+
+        // 设置摄像机z轴位置
+        camera.position.z = 5;
+
+        // 设置flag
+        var flag = true;
+        
+        // 渲染场景
+        function animate(){
+            requestAnimationFrame(animate);
+            // 角度变换
+            cube1.rotation.y += 0.01;
+
+            cube2.rotation.x -= 0.01;
+            cube2.rotation.y -= 0.01;
+            cube2.rotation.z -= 0.02;
+
+            // 位置变换
+            cube1.position.x >= 0 && (flag = false);
+            cube1.position.x <= -2 && (flag = true);
+
+            flag ? (cube1.position.x += 0.02) : (cube1.position.x -= 0.02);
+
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+</body>
+</html>

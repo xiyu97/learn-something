@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>实现一个简单的vue</title>
+</head>
+
+<body>
+
+    <div id="msg">
+        <p>{{message}}</p>
+
+        <p><input type="text" v-model="message" /></p>
+        <p>{{message}}</p>
+        <p><button type="button" v-on:click="clickBtn()">click me</button></p>
+    </div>
+
+    <!-- <script type="text/javascript" src="./vue.js"></script> -->
+    <!-- <script src="./MVVM.js"></script> -->
+    <script type="module">
+        import MVVM from './MVVM.js';
+        
+        new MVVM({
+            el: "#msg",
+            data: {
+                b: {
+                    c: 1
+                },
+                message: "hello world!"
+            },
+            methods: {
+                clickBtn: function (message) {
+                    this.message = "clicked";
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>webGL</title>
+		<link rel="stylesheet" href="../canvas2D/public.css">
+	</head>
+	<body>
+		<canvas id="glCanvas" width="640" height="480"></canvas>
+
+		<!-- 依赖 -->
+		<script src="./gl-matrix.js"></script>
+		<script>
+			var squareRotation = 0.0;
+			
+			// start here
+			main();
+
+			function main() {
+				const canvas = document.querySelector("#glCanvas");
+				// Initialize the GL context
+				const gl = canvas.getContext("webgl");
+
+				// Only continue if WebGL is available and working
+				if (gl === null) {
+					alert("Unable to initialize WebGL. Your browser or machine may not support it.");
+					return;
+				}
+
+				// Set clear color to black, fully opaque
+				gl.clearColor(0.0, 0.0, 0.0, 1.0);
+				// Clear the color buffer with specified clear color
+				gl.clear(gl.COLOR_BUFFER_BIT);
+
+				// 顶点着色器(Vertex shader program)
+				// 从定义的称为 aVertexPosition 的属性接收顶点位置值
+				// 然后将该位置乘以两个4x4矩阵，称为uProjectionMatrix 和uModelViewMatrix
+				const vsSource =
+					`
+				    attribute vec4 aVertexPosition;
+				    attribute vec4 aVertexColor;
+				    
+					uniform mat4 uModelViewMatrix;
+					uniform mat4 uProjectionMatrix;
+					
+					varying lowp vec4 vColor;
+				
+					void main() {
+						gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+						vColor = aVertexColor;
+					}
+				`;
+				// 片段着色器(Vertex shader program)
+				const fsSource =
+					`
+					varying lowp vec4 vColor;
+					
+					void main(void) {
+						gl_FragColor = vColor;
+					}
+				`;
+
+				// 初始化着色器
+				const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
+
+				const programInfo = {
+					program: shaderProgram,
+					attribLocations: {
+						vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
+						vertexColor: gl.getAttribLocation(shaderProgram, 'aVertexColor')
+					},
+					uniformLocations: {
+						projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
+						modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
+					},
+				};
+				
+				const buffers = initBuffers(gl);
+				// drawScene(gl, programInfo, buffers);
+				
+				var then = 0;
+				function render(now){
+					now *= 0.001;	// convert to seconds
+					const deltaTime = now - then;
+					then = now;
+					
+					drawScene(gl, programInfo, buffers, deltaTime);
+					window.requestAnimationFrame(render);
+				}
+				window.requestAnimationFrame(render);
+			}
+
+			// 在渲染方形平面之前, 需要创建包含其顶点位置的缓冲区，并将顶点位置放入其中
+			function initBuffers(gl) {
+
+				// Create a buffer for the square's positions.
+
+				const positionBuffer = gl.createBuffer();
+
+				// Select the positionBuffer as the one to apply buffer
+				// operations to from here out.
+
+				gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+
+				// Now create an array of positions for the square.
+
+				const n = 8;
+				const vertices = initVertexBuffer(n);
+
+				// Now pass the list of positions into WebGL to build the
+				// shape. We do this by creating a Float32Array from the
+				// JavaScript array, then use it to fill the current buffer.
+
+				gl.bufferData(gl.ARRAY_BUFFER,
+					vertices,
+					gl.STATIC_DRAW);
+
+				const colors = [
+					1.0, 1.0, 1.0, 1.0, // white
+					1.0, 0.0, 0.0, 1.0, // red
+					0.0, 1.0, 0.0, 1.0, // green
+					0.0, 0.0, 1.0, 1.0, // blue
+					1.0, 1.0, 1.0, 1.0, // white
+					1.0, 0.0, 0.0, 1.0, // red
+					0.0, 1.0, 0.0, 1.0, // green
+					0.0, 0.0, 1.0, 1.0, // blue
+				];
+
+				const colorBuffer = gl.createBuffer();
+				gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+				gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+
+				gl.drawArrays(gl.TRIANGLE_FAN, 0, n);
+
+				return {
+					position: positionBuffer,
+					vertexCount: n,
+					color: colorBuffer
+				};
+			}
+
+			// 获取 N 边形坐标
+			function initVertexBuffer(n) {
+				// 画n个点
+				var N = n || 4;
+				var vertices = new Float32Array(N * 2);
+				var angle = 0; // 开始的弧度 
+				var r = 2; // 圆的半径
+				// θ值
+				var stepAngle = 360 / N * (Math.PI / 180);
+				for (var i = 0; i < N * 2; i += 2) {
+					// 计算顶点x坐标
+					vertices[i] = r * Math.cos(angle);
+					// 计算顶点y坐标
+					vertices[i + 1] = r * Math.sin(angle);
+					angle += stepAngle;
+				}
+				return vertices;
+			}
+
+			// 渲染场景
+			function drawScene(gl, programInfo, buffers, deltaTime) {
+				gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
+				gl.clearDepth(1.0); // Clear everything
+				gl.enable(gl.DEPTH_TEST); // Enable depth testing
+				gl.depthFunc(gl.LEQUAL); // Near things obscure far things
+
+				// Clear the canvas before we start drawing on it.
+
+				gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+				// Create a perspective matrix, a special matrix that is
+				// used to simulate the distortion of perspective in a camera.
+				// Our field of view is 45 degrees, with a width/height
+				// ratio that matches the display size of the canvas
+				// and we only want to see objects between 0.1 units
+				// and 100 units away from the camera.
+
+				const fieldOfView = 45 * Math.PI / 180; // in radians
+				const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+				const zNear = 0.1;
+				const zFar = 100.0;
+				const projectionMatrix = mat4.create();
+
+				// note: glmatrix.js always has the first argument
+				// as the destination to receive the result.
+				mat4.perspective(projectionMatrix,
+					fieldOfView,
+					aspect,
+					zNear,
+					zFar);
+
+				// Set the drawing position to the "identity" point, which is
+				// the center of the scene.
+				const modelViewMatrix = mat4.create();
+
+				// Now move the drawing position a bit to where we want to
+				// start drawing the square.
+
+				mat4.translate(modelViewMatrix, // destination matrix
+					modelViewMatrix, // matrix to translate
+					[-0.0, 0.0, -7.0]); // amount to translate
+				
+					
+				// 旋转图形
+				mat4.rotate(modelViewMatrix,  // destination matrix
+				  modelViewMatrix,  // matrix to rotate
+				  squareRotation,   // amount to rotate in radians
+				  [0, 0, 1]);       // axis to rotate around
+
+				// Tell WebGL how to pull out the positions from the position
+				// buffer into the vertexPosition attribute.
+				{
+					const numComponents = 2; // pull out 2 values per iteration
+					const type = gl.FLOAT; // the data in the buffer is 32bit floats
+					const normalize = false; // don't normalize
+					const stride = 0; // how many bytes to get from one set of values to the next
+					// 0 = use type and numComponents above
+					const offset = 0; // how many bytes inside the buffer to start from
+					gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
+					gl.vertexAttribPointer(
+						programInfo.attribLocations.vertexPosition,
+						numComponents,
+						type,
+						normalize,
+						stride,
+						offset);
+					gl.enableVertexAttribArray(
+						programInfo.attribLocations.vertexPosition);
+				}
+
+				// Tell WebGL how to pull out the colors from the color buffer
+				// into the vertexColor attribute.
+				{
+					const numComponents = 4;
+					const type = gl.FLOAT;
+					const normalize = false;
+					const stride = 0;
+					const offset = 0;
+					gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color);
+					gl.vertexAttribPointer(
+						programInfo.attribLocations.vertexColor,
+						numComponents,
+						type,
+						normalize,
+						stride,
+						offset);
+					gl.enableVertexAttribArray(
+						programInfo.attribLocations.vertexColor);
+				}
+
+				// Tell WebGL to use our program when drawing
+
+				gl.useProgram(programInfo.program);
+
+				// Set the shader uniforms
+
+				gl.uniformMatrix4fv(
+					programInfo.uniformLocations.projectionMatrix,
+					false,
+					projectionMatrix);
+				gl.uniformMatrix4fv(
+					programInfo.uniformLocations.modelViewMatrix,
+					false,
+					modelViewMatrix);
+
+				{
+					const offset = 0;
+					// const vertexCount = 4;
+					// TRIANGLE_STRIP
+					gl.drawArrays(gl.TRIANGLE_FAN, offset, buffers.vertexCount);
+				}
+				
+				squareRotation += deltaTime;
+			}
+
+			// 初始化着色器，让WebGL知道如何渲染数据
+			function initShaderProgram(gl, vsSource, fsSource) {
+				const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
+				const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
+
+				// Create the shader program
+				const shaderProgram = gl.createProgram();
+				gl.attachShader(shaderProgram, vertexShader);
+				gl.attachShader(shaderProgram, fragmentShader);
+				gl.linkProgram(shaderProgram);
+
+				// If creating the shader program failed, alert
+
+				if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+					alert('Unable to initialize the shader program: ' + gl.getProgramInfoLog(shaderProgram));
+					return null;
+				}
+
+				return shaderProgram;
+			}
+
+			// 创建一个给定类型的着色器，来加载和编译着色器代码
+			function loadShader(gl, type, source) {
+				// 创建新的着色器
+				const shader = gl.createShader(type);
+
+				// 将着色器的源代码发送到着色器
+
+				gl.shaderSource(shader, source);
+
+				// 着色器获得源代码后，对其进行编译
+
+				gl.compileShader(shader);
+
+				// 检查以确保着色器成功编译
+
+				if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+					alert('An error occurred compiling the shaders: ' + gl.getShaderInfoLog(shader));
+					gl.deleteShader(shader);
+					return null;
+				}
+
+				return shader;
+			}
+		</script>
+	</body>
+</html>

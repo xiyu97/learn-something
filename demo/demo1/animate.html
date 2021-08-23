@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>动效</title>
+    <style>
+        #demo{
+            width: 200px;
+            height: 200px;
+            margin: 50px auto;
+            background-color: lightblue;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .btn{
+            float: right;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <button class="btn" onclick="show()">展开</button>
+        <button class="btn" onclick="hide()">收起</button>
+        <div id="demo">我是一个div</div>
+    </div>
+    <script>
+
+        function hide(){
+            let demo = document.getElementById('demo'),
+                _height = demo.clientHeight;
+
+            demo.style.height = (_height - 10) + 'px';
+            if(_height < 10){
+                demo.style.display = 'none';
+                return;
+            }
+            window.requestAnimationFrame(hide);
+        }
+
+        function show(){
+            let demo = document.getElementById('demo'),
+                _height = demo.clientHeight;
+
+            demo.style.display = 'flex';
+
+            demo.style.height = (_height + 10) + 'px';
+            if(_height > 200){
+                return;
+            }
+            window.requestAnimationFrame(show);
+        }
+    </script>
+</body>
+</html>

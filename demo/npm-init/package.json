@@ -1,0 +1,11 @@
+{
+  "name": "npm-init",
+  "version": "1.0.0",
+  "description": "init npm",
+  "main": "index.js",
+  "scripts": {
+    "test": "start"
+  },
+  "author": "hge",
+  "license": "ISC"
+}

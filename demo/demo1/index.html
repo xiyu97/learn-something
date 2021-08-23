@@ -1,0 +1,74 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        
+    </style>
+</head>
+<body>
+    <div id="app">
+        
+    </div>
+    <script>
+        // 实现一个new
+        function myNew(){
+            function  Foo(value){
+                this.value = value;
+                // return 0
+            }
+
+            function create() {
+                // 创建一个空的对象
+                var obj = Object.create(null),
+                // 获得构造函数，arguments中去除第一个参数
+                // shift函数返回数组第一位
+                Con = [].shift.call(arguments);
+                console.log('Con: ',Con);           // Con : function Foo
+
+                // 创建一个空的对象并链接到原型，obj 可以访问构造函数原型中的属性
+                var obj = Object.create(Con.prototype);
+                
+                // 绑定 this 实现继承，obj 可以访问到构造函数中的属性
+                var ret = Con.apply(obj, arguments);
+                console.log('ret: ',ret);       // 函数Foo的返回值
+
+                // 优先返回构造函数返回的对象
+                return ret instanceof Object ? ret : obj;
+            };
+            create(Foo,10);
+        }
+        // myNew();
+
+
+        // 实现instanceof功能
+        function myInstanceOf(){
+
+            function instance_of(L, R) {//L 表示左表达式，R 表示右表达式
+                var O = R.prototype;// 取 R 的显示原型
+                L = L.__proto__;// 取 L 的隐式原型
+                while (true) { 
+                    // Object.prototype.__proto__ === null
+                    if (L === null) 
+                        return false; 
+                    if (O === L)// 这里重点：当 O 严格等于 L 时，返回 true 
+                        return true; 
+                    L = L.__proto__; 
+                } 
+            }
+
+            // 测试
+            function C(){} 
+            function D(){} 
+
+            var o = new C();
+
+            console.log(instance_of(o, C)); // true
+            console.log(instance_of(o, D)); // false
+
+        }
+        myInstanceOf();
+    </script>
+</body>
+</html>

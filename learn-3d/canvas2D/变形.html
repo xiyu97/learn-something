@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>transformations</title>
+		<link rel="stylesheet" href="./public.css">
+	</head>
+	<body>
+		<div id="app"></div>
+
+		<script>
+			let app = document.getElementById('app');
+			let can = document.createElement('canvas');
+			can.id = 'canvas';
+			can.width = '400';
+			can.height = '400';
+			let a = can.getContext('2d');
+			a.translate(200,200);
+
+			for (var i = 1; i < 6; i++) { // Loop through rings (from inside to out)
+				a.save();
+				a.fillStyle = 'rgb(' + (51 * i) + ',' + (255 - 51 * i) + ',255)';
+
+				for (var j = 0; j < i * 6; j++) { // draw individual dots
+					a.rotate(Math.PI * 2 / (i * 6));
+					a.beginPath();
+					a.arc(0, i * 12.5, 5, 0, Math.PI * 2, true);
+					a.transform(1.03, 0.2, 0, 1.03, 0, 0);
+					a.fill();
+				}
+
+				a.restore();
+			}
+
+			// for (var i = 0; i < 3; i++) {
+			// 	for (var j = 0; j < 3; j++) {
+			// 		a.save();
+			// 		a.fillStyle = 'rgb(' + (51 * i) + ', ' + (255 - 51 * i) + ', 255)';
+			// 		a.translate(10 + j * 50, 10 + i * 50);
+			// 		a.fillRect(0, 0, 25, 25);
+			// 		a.restore();
+			// 	}
+			// }
+
+			app.appendChild(can);
+		</script>
+	</body>
+</html>
