@@ -16,6 +16,7 @@ function initLazyImg(defaultSrc){
 
 	function setDefault(){
 		let len = imgs.length;
+        
 		for(var i=0; i<len; i++){
 			imgs[i].src = defaultSrc;
 		}
