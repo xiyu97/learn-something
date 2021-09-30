@@ -1,15 +1,20 @@
 const path = require('path');
+const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");//提取css到单独文件的插件
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');//压缩css插件
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')   // 处理ie8关键字
+
+
 
 module.exports = {
     mode: 'development', // production | development
     //配置多入口,既然打包多页面那也要配置多入口
     entry: {
-        app: './app.js',
+        common: './common.css.js',
         index: ['./pages/index/index.js', './pages/index/index.scss'],
         product: ['./pages/product/product.js', './pages/product/product.scss'],
         about: ['./pages/about/about.js', './pages/about/about.scss'],
@@ -17,52 +22,73 @@ module.exports = {
     //出口路径配置
     output: {
         filename: 'js/[name].[hash].js', //这个主要作用是将打包后的js已hash值的编码方式来生成出来
-        path: path.resolve(__dirname, './dist'),
-        publicPath: './'
+        path: path.resolve(__dirname, 'dist'),
+        publicPath: './',
     },
     devServer: {
-        contentBase: './dist',
-        hot: true
+        contentBase: path.resolve(__dirname, './dist'),
+        hot: true,
+        open: true
     },
+    optimization: {
+        minimizer: [
+            new UglifyJsPlugin({
+                exclude: /node_modules/,
+                uglifyOptions: {
+                    ie8: true
+                }
+            })
+        ]
+    },
+    target: false,
+    // devtool: process.env.NODE_ENV === 'development' ? 'source-map':'inline-source-map',
     module: {
         rules: [
             {
                 // 它会应用到 .css  .scss  .sass 后缀的文件,
                 // use数组loader的名字是有顺序的（从后往前链式调用），
-                // 即先由sass-loader，再由css-loader处理，最后由MiniCssExtractPlugin.loader处理
+                // 即处理顺序为sass-loader -> postcss-loader -> css-loader -> MiniCssExtractPlugin.loader
                 test: /\.(sc|c|sa)ss$/,
-                use: [{
-                    loader: MiniCssExtractPlugin.loader,
-                    options: {
-                        // 当前的css所在的文件相对于打包后的根路径dist的相对路径
-                        publicPath: '../'
-                    }
-                }, 'css-loader', 'sass-loader']
+                use: [
+                    {
+                        loader: MiniCssExtractPlugin.loader,
+                        options: {
+                            // filename: '[name].css',
+                            // chunkFilename: '[name].css',
+                            publicPath: '../'   //****最后打包的时候替换引入文件路径
+                        },
+                    },
+                    'css-loader', 'postcss-loader', 'sass-loader'
+                ]
             },
             {
                 test: /\.js$/,
                 use: {
-                    loader: 'babel-loader'
+                    loader: 'babel-loader',
+                    // options: {
+                    //     presets: ['@babel/preset-env'],
+                    //     plugins: ['@babel/plugin-transform-runtime']
+                    // }
                 },
                 exclude: '/node_modules/'
             },
-            {
-                test: /\.html$/,
-                use: [
-                    {
-                        loader: 'html-loader',
-                        options: {
-                            // list: [
-                            //     {
-                            //         tag: 'link',
-                            //         attribute: 'href',
-                            //         type: 'src',
-                            //     },
-                            // ]
-                        }
-                    }
-                ]
-            },
+            // {
+            //     test: /\.html$/,
+            //     use: [
+            //         {
+            //             loader: 'html-loader',
+            //             options: {
+            //                 // list: [
+            //                 //     {
+            //                 //         tag: 'link',
+            //                 //         attribute: 'href',
+            //                 //         type: 'src',
+            //                 //     },
+            //                 // ]
+            //             }
+            //         }
+            //     ]
+            // },
             {
                 test: /\.(png|svg|jpg|gif|ico)$/,
                 exclude: '/node_modules/',
@@ -101,21 +127,45 @@ module.exports = {
         ]
     },
     plugins: [
-        //在每一次编译前都清除output输出的路径  CleanWebpackPlugin的主要作用
+        //在每一次编译前清空dist文件夹
         new CleanWebpackPlugin(),
+        // new webpack.ProvidePlugin({
+        //     $: 'jquery'
+        // }),
+
+        // 把src下public文件夹下的所有内容直接拷贝到dist(输出目录)下
+        new CopyWebpackPlugin({
+            patterns: [
+                {
+                    from: __dirname + '/src/images/',
+                    to: 'images'
+                },
+                {
+                    from: __dirname + '/src/icons/',
+                    to: 'icons'
+                },
+                {
+                    from: __dirname + '/src/utils/',
+                    to: 'utils'
+                }
+            ]
+        }),
+
         //HtmlWebpackPlugin配置
         new HtmlWebpackPlugin({
             title: '首页',
             template: './pages/index/index.html',
             filename: 'index.html',
+            chunks: ['common', 'index'],
             minify: {
                 collapseWhitespace: true,//删除空格、换行
             }
         }),
         new HtmlWebpackPlugin({
-            title: '产品',
+            title: '您的浏览器不支持此页面',
             template: './pages/product/product.html',
             filename: 'product.html',
+            chunks: ['common', 'product'],
             minify: {
                 collapseWhitespace: true,//删除空格、换行
             }
@@ -124,6 +174,7 @@ module.exports = {
             title: '关于我们',
             template: './pages/about/about.html',
             filename: 'about.html',
+            chunks: ['common', 'about'],
             minify: {
                 collapseWhitespace: true,//删除空格、换行
             }
@@ -131,6 +182,6 @@ module.exports = {
         new MiniCssExtractPlugin({
             filename: "css/[name]_[hash].css"//输出目录与文件
         }),
-        new OptimizeCssAssetsPlugin()
+        // new OptimizeCssAssetsPlugin()
     ]
 }

@@ -1,0 +1,9 @@
+#app #bg {
+  width: 200px;
+  height: 200px;
+  background-image: url(../images/sword.png); }
+
+#app .index {
+  color: #f40;
+  transform: translate(0, 0); }
+

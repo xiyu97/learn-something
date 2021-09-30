@@ -11,9 +11,15 @@ module.exports = {
       // 对于 CleanWebpackPlugin 的 v2 versions 以下版本，使用 new CleanWebpackPlugin(['dist/*'])
       new CleanWebpackPlugin(),
       new HtmlWebpackPlugin({
-        title: '管理输出',
-      }),
+            title: '首页',
+            template: './src/index.html',
+            filename: 'index.html',
+        })
     ],
+    devServer: {
+        contentBase: path.resolve(__dirname, 'dista'),
+        hot: true
+    },
     output: {
         filename: '[name].bundle.js',
         path: path.resolve(__dirname, 'dist'),
