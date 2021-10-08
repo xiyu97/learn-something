@@ -24,11 +24,26 @@ module.exports = {
         filename: 'js/[name].[hash].js', //这个主要作用是将打包后的js已hash值的编码方式来生成出来
         path: path.resolve(__dirname, 'dist'),
         publicPath: './',
+        // publicPath: process.env.NODE_ENV === 'development' ? '/' : './',
     },
     devServer: {
+        before(app, server, compiler) {
+            const watchFiles = ['.html'];
+
+            compiler.hooks.done.tap('done', () => {
+                const changedFiles = Object.keys(compiler.watchFileSystem.watcher.mtimes);
+
+                if (
+                    this.hot &&
+                    changedFiles.some(filePath => watchFiles.includes(path.parse(filePath).ext))
+                ) {
+                    server.sockWrite(server.sockets, 'content-changed');
+                }
+            });
+        },
         contentBase: path.resolve(__dirname, './dist'),
         hot: true,
-        open: true
+        publicPath: '/'
     },
     optimization: {
         minimizer: [
@@ -40,7 +55,7 @@ module.exports = {
             })
         ]
     },
-    target: false,
+    // target: false,
     // devtool: process.env.NODE_ENV === 'development' ? 'source-map':'inline-source-map',
     module: {
         rules: [
@@ -182,6 +197,6 @@ module.exports = {
         new MiniCssExtractPlugin({
             filename: "css/[name]_[hash].css"//输出目录与文件
         }),
-        // new OptimizeCssAssetsPlugin()
+        new OptimizeCssAssetsPlugin(),
     ]
 }
