@@ -74,7 +74,13 @@ module.exports = {
                             publicPath: '../'   //****最后打包的时候替换引入文件路径
                         },
                     },
-                    'css-loader', 'postcss-loader', 'sass-loader'
+                    'css-loader', 'postcss-loader',
+                    {
+                        loader: 'sass-loader',
+                        options: {
+                            additionalData: '@import "./src/style/base.scss";'  // 添加全局变量
+                        },
+                    },
                 ]
             },
             {
