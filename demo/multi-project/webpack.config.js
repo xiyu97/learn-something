@@ -27,6 +27,7 @@ module.exports = {
         // publicPath: process.env.NODE_ENV === 'development' ? '/' : './',
     },
     devServer: {
+        // 将html文件加入webpack依赖，使得改变html也能热更新
         before(app, server, compiler) {
             const watchFiles = ['.html'];
 
