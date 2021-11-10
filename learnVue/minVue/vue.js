@@ -7741,7 +7741,7 @@
         return document.createElementNS(namespaceMap[namespace], tagName)
     }
 
-    //创建文本节点真是dom节点
+    //创建文本节点真实dom节点
     function createTextNode(text) {
         return document.createTextNode(text)
     }
