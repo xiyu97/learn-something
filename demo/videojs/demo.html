@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link href="http://vjs.zencdn.net/4.1/video-js.css" rel="stylesheet">
+    <link href="./videojs.public.css" rel="stylesheet">
+    <script src="./videojs-ie8.js"></script> 
+    <script src="http://vjs.zencdn.net/4.1/video.js"></script>
+    <script>
+        videojs.options.flash.swf = "./video-js.swf";
+    </script>
+</head>
+<body>
+    <div>
+        <video id="my-video" class="video-js vjs-default-skin" controls preload="none" width="400" height="240" poster="" data-setup="" style="width: 400px;height: 240px;" >
+            <source src="https://www.runoob.com/try/demo_source/movie.mp4" type="video/mp4">
+            <p style="padding: 0 15px;font-size: 12px;background-color: black;">
+                抱歉，没有找到此视频的兼容源和播放技术。请更换浏览器 <a href="https://www.google.cn/chrome/" target="_blank">谷歌浏览器</a> 或者点击下载最新flash插件 <a href="https://www.flash.cn/cdm/latest/flashplayerax_install_cn.exe" target="_blank">Adobe Flash Player</a>.
+            </p>
+          </video>
+    </div>
+</body>
+</html>
