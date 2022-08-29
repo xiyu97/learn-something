@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>贝塞尔曲线</title>
+    <style>
+        * {
+
+            margin: 0;
+
+            padding: 0;
+
+            box-sizing: border-box;
+
+        }
+
+        #trackContainer {
+
+            display: inline-block;
+
+            background: #b2bfdc;
+
+        }
+
+        #trackCanvas {
+
+            vertical-align: top;
+
+        }
+    </style>
+</head>
+
+<body>
+    <div id="trackContainer">
+        <canvas id="trackCanvas"></canvas>
+    </div>
+    
+    <script>
+        window.onload = function () {
+
+            var width = 314,
+
+                height = 645,
+
+                canvas = document.getElementById('trackCanvas');
+
+            canvas.width = width;
+
+            canvas.height = height;
+
+            var context = canvas.getContext('2d');
+
+            context.strokeStyle = '#fff';
+
+            context.lineWidth = width / 2;
+
+            context.beginPath();
+
+            context.moveTo(width / 2, 1.1 * height);
+
+            context.bezierCurveTo(width / 2.2, height / 2.5,
+
+                width / 2.4, height / 4,
+
+                width, 0);
+
+            context.stroke();
+
+        };
+    </script>
+</body>
+
+</html>
